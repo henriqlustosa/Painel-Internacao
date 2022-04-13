@@ -184,8 +184,8 @@ export default function New() {
                         <label>Assunto</label>
                         <select value={assunto} onChange={handleChangeSelect} >
                             <option value="Suporte">Suporte</option>
-                            <option value="Visita Tecnica">Visita Tecnica</option>
-                            <option value="Financeiro">Financeiro</option>
+                            <option value="Treinamento">Treinamento </option>
+                            <option value="Desenvolvimento">Desenvolvimento</option>
                         </select>
 
                         <label>Status</label>
