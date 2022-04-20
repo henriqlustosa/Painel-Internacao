@@ -36,8 +36,8 @@ export default function Dashboard() {
   }, []);
 
   const searchItems = (searchValue) => {
- 
-    if (searchValue  !== '') {
+    setSearchInput(searchValue);
+    if (searchValue  !== "") {
      
       const filteredData = chamados.filter((item) => {
         return Object.values(item)
@@ -119,7 +119,7 @@ export default function Dashboard() {
         <Header />
 
         <div className="content">
-          <Title name="Atendimentos">
+          <Title name="Pacientes">
             <FiMessageSquare size={25} />
           </Title>
 
@@ -136,7 +136,7 @@ export default function Dashboard() {
       <Header />
 
       <div className="content">
-        <Title name="Atendimentos">
+        <Title name="Pacientes">
           <FiMessageSquare size={25} />
         </Title>
 

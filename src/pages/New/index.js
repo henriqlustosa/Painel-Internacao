@@ -13,21 +13,27 @@ export default function New() {
     const { id } = useParams();
     const history = useHistory();
 
-    const [loadCustomers, setLoadCustomers] = useState(true);
-    const [customers, setCustomers] = useState([]);
-    const [customerSelected, setCustomerSelected] = useState(0);
+    const [loadPacientes, setLoadPacientes] = useState(true);
+    const [pacientes, setPacientes] = useState([]);
+    const [pacienteSelected, setPacienteSelected] = useState(0);
 
-    const [assunto, setAssunto] = useState('Suporte');
-    const [status, setStatus] = useState('Aberto');
-    const [complemento, setComplemento] = useState('');
+    const [prontuario, setProntuario] = useState();
+    const [nascimento, setNascimento] = useState();
+    const [especialidade, setEspecialidade] = useState();
+    const [idade, setIdade] = useState();
+    const [sexo, setSexo] = useState();
+    const [quarto, setQuarto] = useState();
+    const [internacao, setInternacao] = useState();
+    const [unidade, setUnidade] = useState();
+
     
-    const [idCustomer, setIdCustomer] = useState(false);
+    const [idPaciente, setIdPaciente] = useState(true);
 
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
-        async function loadCustomers() {
-            await firebase.firestore().collection('customers')
+        async function loadPacientes() {
+            await firebase.firestore().collection('entities')
             .get()
             .then((snapshot) => {
 
@@ -36,19 +42,19 @@ export default function New() {
                 snapshot.forEach((doc) => {
                     lista.push({
                         id: doc.id,
-                        nomeFantasia: doc.data().nomeFantasia
+                        paciente: doc.data().nm_paciente
                     })
                 })
 
                 if (lista.length === 0) {
                     console.log("Nenhuma empresa encontrada!");
-                    setCustomers([ { id: '1', nomeFantasia: 'FREELA' } ]);
-                    setLoadCustomers(false);
+                    setPacientes([ { id: '1', paciente: 'FREELA' } ]);
+                    setLoadPacientes(false);
                     return;
                 }
 
-                setCustomers(lista);
-                setLoadCustomers(false);
+                setPacientes(lista);
+                setLoadPacientes(false);
                 
 
                 if (id) {
@@ -58,52 +64,59 @@ export default function New() {
             })
             .catch((error) => {
                 console.log("Ocorreu algum erro!", error);
-                setLoadCustomers(false);
-                setCustomers([ { id: '1', nomeFantasia: '' }]);
+                setLoadPacientes(false);
+                setPacientes([ { id: '1', paciente: '' }]);
             })
         }
 
-        loadCustomers();
+        loadPacientes();
 
     } , [id]);
 
     async function loadId(lista) {
-        await firebase.firestore().collection('chamados').doc(id)
+        await firebase.firestore().collection('entities').doc(id)
         .get()
         .then((snapshot) => {
-            setAssunto(snapshot.data().assunto);
-            setStatus(snapshot.data().status);
-            setComplemento(snapshot.data().complemento);
-
-            let index = lista.findIndex(item => item.id === snapshot.data().clienteId );
-            setCustomerSelected(index);
-            setIdCustomer(true);
+           
+            setProntuario(snapshot.data().cd_prontuario);
+            setInternacao(snapshot.data().dt_internacao_data);
+            setSexo (snapshot.data().in_sexo);
+            setNascimento(snapshot.data().nascimento);
+            setEspecialidade(snapshot.data().nm_especialidade);
+            setQuarto(snapshot.data().nr_quarto);
+            setUnidade(snapshot.data().nm_unidade_funcional);
+            setIdade(snapshot.data().nr_idade);
+            
 
         })
         .catch((err) => {
             console.log('Erro no ID passado: ', err);
-            setIdCustomer(false);
+            setIdPaciente(false);
         })
     }
 
     async function handleRegister(e) {
         e.preventDefault();
 
-        if (idCustomer) {
-            await firebase.firestore().collection('chamados')
+        if (idPaciente) {
+            await firebase.firestore().collection('entities')
             .doc(id)
             .update({
-                cliente: customers[customerSelected].nomeFantasia,
-                clienteId: customers[customerSelected].id,
-                assunto: assunto,
-                status: status,
-                complemento: complemento,
+                cd_prontuario: prontuario,
+                nascimento: nascimento,
+                nr_idade: idade, 
+                in_sexo: sexo,
+                nm_especialidade: especialidade,
+                nr_quarto: quarto,
+                dt_internacao_data: internacao,
+                nm_unidade_funcional: unidade,
+             
                 userId: user.uid
             })
             .then(() => {
                 toast.success('Chamado editado com sucesso!');
-                setCustomerSelected(0);
-                setComplemento('');
+                setPacienteSelected(0);
+                setProntuario('');
                 history.push('/dashboard');
             })
             .catch((err) => {
@@ -114,19 +127,22 @@ export default function New() {
             return;
         }
         
-        await firebase.firestore().collection('chamados')
+        await firebase.firestore().collection('entities')
         .add({
             created: new Date(),
-            cliente: customers[customerSelected].nomeFantasia,
-            clienteId: customers[customerSelected].id,
-            assunto: assunto,
-            status: status,
-            complemento: complemento,
+            cd_prontuario: prontuario,
+            nascimento: nascimento,
+            nr_idade: idade, 
+            in_sexo: sexo,
+            nm_especialidade: especialidade,
+            nr_quarto: quarto,
+            dt_internacao_data: internacao,
+            nm_unidade_funcional: unidade,
             userId: user.uid
         }).then(() => {
             toast.success('Chamado criado com sucesso!');
-            setComplemento('');
-            setCustomerSelected(0);
+            setProntuario('');
+            setPacienteSelected(0);
         })
         .catch((err) => {
             toast.error('Ops, erro ao registrar, tente novamente mais tarde.');
@@ -134,7 +150,7 @@ export default function New() {
         })
     }
 
-    //chamado quando troca o assunto
+    /*chamado quando troca o assunto
     function handleChangeSelect(e) {
         setAssunto(e.target.value);
     }
@@ -143,11 +159,11 @@ export default function New() {
     function handleOptionChange(e) {
         setStatus(e.target.value);
     }
-
+   */
 
     //chamado quando troca de cliente
     function handleChangeCustomers(e) {
-        setCustomerSelected(e.target.value);
+        setPacienteSelected(e.target.value);
     }
 
     return(
@@ -155,7 +171,7 @@ export default function New() {
             <Header/>
 
             <div className='content'>
-                <Title name="Novo Chamado">
+                <Title name="Novo Paciente">
                     <FiPlusCircle size={25} />
                 </Title>
 
@@ -163,68 +179,53 @@ export default function New() {
                 <div className='container'>
                     
                     <form className='form-profile' onSubmit={handleRegister}>
-                        <label>Cliente</label>
+                        <label>Paciente</label>
 
-                        {loadCustomers ? (
+                        {loadPacientes ? (
                             <input type='text' disabled={true} value="Carregando clientes..." />
                         ) : (
 
-                            <select value={customerSelected} onChange={handleChangeCustomers} >
-                                {customers.map((item, index) => {
+                            <select value={pacienteSelected} onChange={handleChangeCustomers} >
+                                {pacientes.map((item, index) => {
                                     return(
                                         <option key={item.id} value={index}>
-                                            {item.nomeFantasia}
+                                            {item.paciente}
                                         </option>
                                     );
                                 })}
                             </select>
                         ) }
 
+                      
 
-                        <label>Assunto</label>
-                        <select value={assunto} onChange={handleChangeSelect} >
-                            <option value="Suporte">Suporte</option>
-                            <option value="Treinamento">Treinamento </option>
-                            <option value="Desenvolvimento">Desenvolvimento</option>
-                        </select>
+                        <label>Prontuário</label>
+                        <input type="text" placeholder='Seu prontuario' value={prontuario} onChange={ (e) => setProntuario(e.target.value) } />
+                    
+                        <label>Nascimento</label>
+                        <input type="text" placeholder='Data de nascimento' value={nascimento} onChange={ (e) => setNascimento(e.target.value) } />
 
-                        <label>Status</label>
-                        <div className='status'>
-                            <input
-                                type="radio" 
-                                name="radio"
-                                value="Aberto"
-                                onChange={handleOptionChange}
-                                checked={ status === 'Aberto' }
-                            />
-                            <span>Em aberto</span>
+                        <label>Idade</label>
+                        <input type="text" placeholder='Idade do paciente' value={idade} onChange={ (e) => setIdade(e.target.value) } />
 
-                            <input
-                                type="radio" 
-                                name="radio"
-                                value="Progresso"
-                                onChange={handleOptionChange}
-                                checked={ status === 'Progresso' }
-                            />
-                            <span>Em progresso</span>
+                        <label>Sexo</label>
+                        <input type="text" placeholder='Sexo do paciente' value={sexo} onChange={ (e) => setSexo(e.target.value) } />
+                    
+                        <label>Especialidade</label>
+                        <input type="text" placeholder='Especialidade' value={especialidade} onChange={ (e) => setEspecialidade(e.target.value) } />
 
-                            <input
-                                type="radio" 
-                                name="radio"
-                                value="Atendido"
-                                onChange={handleOptionChange}
-                                checked={ status === 'Atendido' }
-                            />
-                            <span>Atendido</span>
-                        </div>
+                        
+                        <label>Quarto</label>
+                        <input type="text" placeholder='Quarto do paciente' value={quarto} onChange={ (e) => setQuarto(e.target.value) } />
 
-                        <label>Complemento</label>
-                        <textarea 
-                            type="text"
-                            placeholder='Descreva seu problema (opcional).'
-                            value={complemento}
-                            onChange={ (e) => setComplemento(e.target.value) }
-                        />
+                        <label>Data de Internação</label>
+                        <input type="text" placeholder='Data de internação' value={internacao} onChange={ (e) => setInternacao(e.target.value) } />
+                    
+                        <label>Unidade Funcional</label>
+                        <input type="text" placeholder='Unidade Funcional' value={unidade} onChange={ (e) => setUnidade(e.target.value) } />
+
+                        
+
+                       
 
                         <button type="submit">Registrar</button>
 
