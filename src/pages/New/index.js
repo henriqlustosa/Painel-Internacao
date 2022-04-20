@@ -178,7 +178,7 @@ export default function New() {
                                     );
                                 })}
                             </select>
-                        )}
+                        ) }
 
 
                         <label>Assunto</label>

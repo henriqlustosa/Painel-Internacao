@@ -17,33 +17,53 @@ export default function Modal({conteudo, close}) {
 
                     <div className='row'>
                         <span>
-                            Cliente: <i>{conteudo.cliente}</i>
+                            Paciente: <i>{conteudo.paciente}</i>
                         </span>
                     </div>
 
                     <div className='row'>
                         <span>
-                            Assunto: <i>{conteudo.assunto}</i>
+                            Prontuario: <i>{conteudo.prontuario}</i>
                         </span>
                         <span>
-                            Cadastrado em: <i>{conteudo.createdFormated}</i>
+                            Nascimento: <i>{conteudo.nascimento}</i>
                         </span>
                     </div>
-
                     <div className='row'>
                         <span>
-                            Status: <i style={{ color: '#FFF', backgroundColor: conteudo.status === 'Aberto' ? '#5cb75c' : '#999' }}>{conteudo.status}</i>
+                            Idade: <i>{conteudo.idade}</i>
+                        </span>
+                    </div>
+                    <div className='row'>
+                        <span>
+                            Sexo: <i>{conteudo.sexo}</i>
+                        </span>
+                    </div>
+                    <div className='row'>
+                        <span>
+                            Especialidade: <i>{conteudo.especialidade}</i>
+                        </span>
+                    </div>
+                    <div className='row'>
+                        <span>
+                            Quarto: <i>{conteudo.quarto}</i>
+                        </span>
+                    </div>
+                    <div className='row'>
+                        <span>
+                            Data da Internacao: <i>{conteudo.data_internacao}</i>
+                        </span>
+                    </div>
+                    <div className='row'>
+                        <span>
+                            Unidade Funcional: <i>{conteudo.unidade}</i>
                         </span>
                     </div>
 
-                    {conteudo.complemento !== '' && (
-                        <>
-                            <h3>Complemento</h3>
-                            <p>
-                                {conteudo.complemento}
-                            </p>
-                        </>
-                    )}
+                   
+
+                   
+                  
 
                 </div>
             </div>

@@ -7,26 +7,26 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 
 export default function Customers() {
-    const [nomeFantasia, setNomeFantasia] = useState('');
-    const [cnpj, setCnpj] = useState('');
-    const [endereco, setEndereco] = useState('');
+    const [paciente, setPaciente] = useState('');
+    const [prontuario, setProntuario] = useState('');
+    const [nascimento, setNascimento] = useState('');
 
 
 
     async function handleAdd(e) {
         e.preventDefault();
         
-        if (nomeFantasia !== '' && cnpj !== '' && endereco !== '') {
-            await firebase.firestore().collection('customers')
+        if (paciente !== '' && prontuario !== '' && nascimento !== '') {
+            await firebase.firestore().collection('entities')
             .add({
-                nomeFantasia: nomeFantasia,
-                cnpj: cnpj,
-                endereco: endereco
+                nm_paciente: paciente,
+                cd_prontuario: prontuario,
+                nascimento: nascimento
             })
             .then(() => {
-                setNomeFantasia('');
-                setCnpj('');
-                setEndereco('');
+                setPaciente('');
+                setProntuario('');
+                setNascimento('');
                 toast.info('Empresa cadastrada com sucesso!');
             })
             .catch((error) => {
@@ -44,21 +44,21 @@ export default function Customers() {
             <Header />
 
             <div className="content">
-                <Title name="Clientes">
+                <Title name="Pacientes">
                     <FiUser size={25} />
                 </Title>
 
 
                 <div  className='container'>
                     <form className='form-profile customers' onSubmit={handleAdd}>
-                        <label>Nome fantasia</label>
-                        <input type="text" placeholder='Nome da sua empresa' value={nomeFantasia} onChange={ (e) => setNomeFantasia(e.target.value) } />
+                        <label>Nome</label>
+                        <input type="text" placeholder='Nome do paciente internado' value={paciente} onChange={ (e) => setPaciente(e.target.value) } />
 
-                        <label>CNPJ</label>
-                        <input type="text" placeholder='Seu CNPJ' value={cnpj} onChange={ (e) => setCnpj(e.target.value) } />
+                        <label>Prontuário</label>
+                        <input type="text" placeholder='Seu prontuario' value={prontuario} onChange={ (e) => setProntuario(e.target.value) } />
                     
-                        <label>Endereço</label>
-                        <input type="text" placeholder='Endereço da empresa' value={endereco} onChange={ (e) => setEndereco(e.target.value) } />
+                        <label>Nascimento</label>
+                        <input type="text" placeholder='Data de nascimento' value={nascimento} onChange={ (e) => setNascimento(e.target.value) } />
 
                         <button  type="submit">Cadastrar</button>
                     </form>
