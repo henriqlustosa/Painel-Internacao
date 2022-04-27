@@ -74,14 +74,14 @@ export default function New() {
     } , [id]);
 
     async function loadId(lista) {
-        await firebase.firestore().collection('entities').doc(id)
+        await firebase.firestore().collection('censo').doc(id)
         .get()
         .then((snapshot) => {
            
             setProntuario(snapshot.data().cd_prontuario);
             setInternacao(snapshot.data().dt_internacao_data);
             setSexo (snapshot.data().in_sexo);
-            setNascimento(snapshot.data().nascimento);
+            setNascimento(snapshot.data().dt_nascimento);
             setEspecialidade(snapshot.data().nm_especialidade);
             setQuarto(snapshot.data().nr_quarto);
             setUnidade(snapshot.data().nm_unidade_funcional);
@@ -99,11 +99,11 @@ export default function New() {
         e.preventDefault();
 
         if (idPaciente) {
-            await firebase.firestore().collection('entities')
+            await firebase.firestore().collection('censo')
             .doc(id)
             .update({
                 cd_prontuario: prontuario,
-                nascimento: nascimento,
+                dt_nascimento: nascimento,
                 nr_idade: idade, 
                 in_sexo: sexo,
                 nm_especialidade: especialidade,
@@ -127,11 +127,11 @@ export default function New() {
             return;
         }
         
-        await firebase.firestore().collection('entities')
+        await firebase.firestore().collection('censo')
         .add({
             created: new Date(),
             cd_prontuario: prontuario,
-            nascimento: nascimento,
+            dt_nascimento: nascimento,
             nr_idade: idade, 
             in_sexo: sexo,
             nm_especialidade: especialidade,

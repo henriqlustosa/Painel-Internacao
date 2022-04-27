@@ -26,7 +26,8 @@ export default function Dashboard() {
 
   const listRef = firebase
     .firestore()
-    .collection("entities")
+    .collection("censo")
+    .where('nm_paciente', 'not-in', ['DESOCUPADO', 'MANUTENCAO', 'LIMPEZA', 'BLOQUEIO ADMINISTRATIVO', 'PATOLOGIA'])
     .orderBy("nm_paciente");
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function Dashboard() {
   };
   async function loadChamados() {
     await listRef
+    
       .limit(5)
       .get()
       .then((snapshot) => {
@@ -78,7 +80,7 @@ export default function Dashboard() {
           data_internacao: doc.data().dt_internacao_data,
           hora_internacao: doc.data().dt_internacao_hora,
           sexo: doc.data().in_sexo,
-          nascimento: doc.data().nascimento,
+          nascimento: doc.data().dt_nascimento,
           especialidade: doc.data().nm_especialidade,
           paciente: doc.data().nm_paciente,
           unidade: doc.data().nm_unidade_funcional,
