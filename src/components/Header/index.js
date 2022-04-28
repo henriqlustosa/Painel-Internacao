@@ -4,7 +4,7 @@ import './header.css';
 import avatar from '../../assets/avatar.png';
 
 import { Link } from 'react-router-dom';
-import { FiHome, FiUser, FiSettings } from "react-icons/fi";
+import { FiHome, FiUser, FiSettings, FiBriefcase } from "react-icons/fi";
 
 export default function Header() {
     const { user } = useContext(AuthContext);
@@ -17,16 +17,21 @@ export default function Header() {
 
             <Link to="/dashboard">
                 <FiHome color="#FFF" size={24} /> 
-                Chamados
+                Censo
             </Link>
             <Link to="/customers">
                 <FiUser color="#FFF" size={24} /> 
-                Clientes
+                Pacientes
+            </Link>
+            <Link to="/visit">
+                <FiBriefcase color="#FFF" size={24} /> 
+                Visitas
             </Link>
             <Link to="/profile">
                 <FiSettings color="#FFF" size={24} /> 
                 Configurações
             </Link>
+          
         </div>
     );
 }

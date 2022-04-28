@@ -1,4 +1,4 @@
-import './new.css';
+import './newvisita.css';
 import Header from '../../components/Header';
 import Title from '../../components/Title';
 import { AuthContext } from '../../contexts/auth';
@@ -17,14 +17,12 @@ export default function New() {
     const [pacientes, setPacientes] = useState([]);
     const [pacienteSelected, setPacienteSelected] = useState(0);
 
-    const [prontuario, setProntuario] = useState();
-    const [nascimento, setNascimento] = useState();
-    const [especialidade, setEspecialidade] = useState();
-    const [idade, setIdade] = useState();
-    const [sexo, setSexo] = useState();
-    const [quarto, setQuarto] = useState();
-    const [internacao, setInternacao] = useState();
-    const [unidade, setUnidade] = useState();
+    const [datavisita, setDatavisita] = useState();
+    const [hora, setHora] = useState();
+   
+    const [visitante, setVisitante] = useState();
+    const [andar, setAndar] = useState();
+    
 
     
     const [idPaciente, setIdPaciente] = useState(false);
@@ -33,7 +31,7 @@ export default function New() {
 
     useEffect(() => {
         async function loadPacientes() {
-            await firebase.firestore().collection('censo')
+            await firebase.firestore().collection('censo').where('nm_paciente', 'not-in', ['DESOCUPADO', 'MANUTENCAO', 'LIMPEZA', 'BLOQUEIO ADMINISTRATIVO', 'PATOLOGIA'])
             .get()
             .then((snapshot) => {
 
@@ -56,7 +54,7 @@ export default function New() {
                 setPacientes(lista);
                 setLoadPacientes(false);
                 
-
+                console.log(id, 'id');
                 if (id) {
                     setIdPaciente(true);
                     loadId(lista);
@@ -75,18 +73,16 @@ export default function New() {
     } , [id]);
 
     async function loadId(lista) {
-        await firebase.firestore().collection('censo').doc(id)
+        await firebase.firestore().collection('visitas').doc(id)
         .get()
         .then((snapshot) => {
            
-            setProntuario(snapshot.data().cd_prontuario);
-            setInternacao(snapshot.data().dt_internacao_data);
-            setSexo (snapshot.data().in_sexo);
-            setNascimento(snapshot.data().dt_nascimento);
-            setEspecialidade(snapshot.data().nm_especialidade);
-            setQuarto(snapshot.data().nr_quarto);
-            setUnidade(snapshot.data().nm_unidade_funcional);
-            setIdade(snapshot.data().nr_idade);
+            setDatavisita(snapshot.data().dt_visita_data);
+            setHora(snapshot.data().dt_visita_hora);
+          
+            setVisitante(snapshot.data().nm_visitante);
+            setAndar(snapshot.data().cd_andar);
+     
             
 
         })
@@ -100,25 +96,23 @@ export default function New() {
         e.preventDefault();
 
         if (idPaciente) {
-            await firebase.firestore().collection('censo')
+            await firebase.firestore().collection('visitas')
             .doc(id)
             .update({
-                cd_prontuario: prontuario,
-                dt_nascimento: nascimento,
-                nr_idade: idade, 
-                in_sexo: sexo,
-                nm_especialidade: especialidade,
-                nr_quarto: quarto,
-                dt_internacao_data: internacao,
-                nm_unidade_funcional: unidade,
-             
+                cd_andar: andar,
+                dt_visita_hora: hora,
+                dt_visita_data: datavisita,
+                nm_visitante: visitante,
+                nm_paciente: pacienteSelected, 
+        
+               
                 userId: user.uid
             })
             .then(() => {
                 toast.success('Chamado editado com sucesso!');
                 setPacienteSelected(0);
-                setProntuario('');
-                history.push('/dashboard');
+            
+                history.push('/visit');
             })
             .catch((err) => {
                 toast.error('Ops, erro ao editar chamado, tente novamente mais tarde.');
@@ -128,21 +122,19 @@ export default function New() {
             return;
         }
         
-        await firebase.firestore().collection('censo')
+        await firebase.firestore().collection('visitas')
         .add({
             created: new Date(),
-            cd_prontuario: prontuario,
-            dt_nascimento: nascimento,
-            nr_idade: idade, 
-            in_sexo: sexo,
-            nm_especialidade: especialidade,
-            nr_quarto: quarto,
-            dt_internacao_data: internacao,
-            nm_unidade_funcional: unidade,
+            cd_andar: andar,
+            dt_visita_hora: hora,
+            dt_visita_data: datavisita,
+            nm_visitante: visitante,
+            nm_paciente: pacienteSelected, 
+         
             userId: user.uid
         }).then(() => {
             toast.success('Chamado criado com sucesso!');
-            setProntuario('');
+            
             setPacienteSelected(0);
         })
         .catch((err) => {
@@ -172,7 +164,7 @@ export default function New() {
             <Header/>
 
             <div className='content'>
-                <Title name="Novo Paciente">
+                <Title name="Nova Visita">
                     <FiPlusCircle size={25} />
                 </Title>
 
@@ -199,30 +191,22 @@ export default function New() {
 
                       
 
-                        <label>Prontuário</label>
-                        <input type="text" placeholder='Seu prontuario' value={prontuario} onChange={ (e) => setProntuario(e.target.value) } />
+                        <label>Data</label>
+                        <input type="text" placeholder='Data da visita' value={datavisita} onChange={ (e) => setDatavisita(e.target.value) } />
                     
-                        <label>Nascimento</label>
-                        <input type="text" placeholder='Data de nascimento' value={nascimento} onChange={ (e) => setNascimento(e.target.value) } />
+                        <label>Hora</label>
+                        <input type="text" placeholder='Hora da visita' value={hora} onChange={ (e) => setHora(e.target.value) } />
 
-                        <label>Idade</label>
-                        <input type="text" placeholder='Idade do paciente' value={idade} onChange={ (e) => setIdade(e.target.value) } />
+              
 
-                        <label>Sexo</label>
-                        <input type="text" placeholder='Sexo do paciente' value={sexo} onChange={ (e) => setSexo(e.target.value) } />
+                        <label>Acompanhante/Visitante</label>
+                        <input type="text" placeholder='Nome do visitante' value={visitante} onChange={ (e) => setVisitante(e.target.value) } />
                     
-                        <label>Especialidade</label>
-                        <input type="text" placeholder='Especialidade' value={especialidade} onChange={ (e) => setEspecialidade(e.target.value) } />
+                        <label>Andar/Leito</label>
+                        <input type="text" placeholder='Código do andar' value={andar} onChange={ (e) => setAndar(e.target.value) } />
 
                         
-                        <label>Quarto</label>
-                        <input type="text" placeholder='Quarto do paciente' value={quarto} onChange={ (e) => setQuarto(e.target.value) } />
-
-                        <label>Data de Internação</label>
-                        <input type="text" placeholder='Data de internação' value={internacao} onChange={ (e) => setInternacao(e.target.value) } />
-                    
-                        <label>Unidade Funcional</label>
-                        <input type="text" placeholder='Unidade Funcional' value={unidade} onChange={ (e) => setUnidade(e.target.value) } />
+                        
 
                         
 
