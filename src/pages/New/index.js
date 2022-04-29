@@ -4,7 +4,7 @@ import Title from '../../components/Title';
 import { AuthContext } from '../../contexts/auth';
 
 import { FiPlusCircle } from 'react-icons/fi';
-import { useState, useContext, useEffect } from 'react';
+import { useRef, useState, useContext, useEffect } from 'react';
 import firebase from '../../services/firebaseConnection';
 import { toast } from 'react-toastify';
 import { useHistory, useParams } from 'react-router-dom';
@@ -26,7 +26,7 @@ export default function New() {
     const [internacao, setInternacao] = useState();
     const [unidade, setUnidade] = useState();
 
-    
+    const name = useRef([]);
     const [idPaciente, setIdPaciente] = useState(false);
 
     const { user } = useContext(AuthContext);
@@ -34,6 +34,8 @@ export default function New() {
     useEffect(() => {
         async function loadPacientes() {
             await firebase.firestore().collection('censo')
+            .where('nm_paciente', 'not-in', ['DESOCUPADO', 'MANUTENCAO', 'LIMPEZA', 'BLOQUEIO ADMINISTRATIVO', 'PATOLOGIA'])
+            .orderBy("nm_paciente")
             .get()
             .then((snapshot) => {
 
@@ -46,20 +48,17 @@ export default function New() {
                     })
                 })
 
-                if (lista.length === 0) {
-                    console.log("Nenhuma empresa encontrada!");
-                    setPacientes([ { id: '1', paciente: 'FREELA' } ]);
-                    setLoadPacientes(false);
-                    return;
-                }
-
+             
                 setPacientes(lista);
+                name.current =lista;
+
                 setLoadPacientes(false);
-                
+               
 
                 if (id) {
                     setIdPaciente(true);
                     loadId(lista);
+                   
                 }
 
             })
@@ -87,6 +86,9 @@ export default function New() {
             setQuarto(snapshot.data().nr_quarto);
             setUnidade(snapshot.data().nm_unidade_funcional);
             setIdade(snapshot.data().nr_idade);
+            var index = name.current.findIndex(p => p.id == id);
+            setPacienteSelected(index);
+        
             
 
         })
@@ -111,7 +113,7 @@ export default function New() {
                 nr_quarto: quarto,
                 dt_internacao_data: internacao,
                 nm_unidade_funcional: unidade,
-             
+                nm_paciente: pacientes[pacienteSelected].paciente,
                 userId: user.uid
             })
             .then(() => {
@@ -139,6 +141,7 @@ export default function New() {
             nr_quarto: quarto,
             dt_internacao_data: internacao,
             nm_unidade_funcional: unidade,
+            nm_paciente: pacientes[pacienteSelected].paciente,
             userId: user.uid
         }).then(() => {
             toast.success('Chamado criado com sucesso!');
