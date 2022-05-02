@@ -4,7 +4,7 @@ import Title from '../../components/Title';
 import { AuthContext } from '../../contexts/auth';
 
 import { FiPlusCircle } from 'react-icons/fi';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect,useRef } from 'react';
 import firebase from '../../services/firebaseConnection';
 import { toast } from 'react-toastify';
 import { useHistory, useParams } from 'react-router-dom';
@@ -14,16 +14,23 @@ export default function New() {
     const history = useHistory();
 
     const [loadPacientes, setLoadPacientes] = useState(true);
+    const [loadAndares, setLoadAndares] = useState(true);
     const [pacientes, setPacientes] = useState([]);
+   
+    const [andares, setAndares] = useState([]);
     const [pacienteSelected, setPacienteSelected] = useState(0);
+    const [andarSelected, setAndarSelected] = useState(0);
 
     const [datavisita, setDatavisita] = useState();
     const [hora, setHora] = useState();
    
     const [visitante, setVisitante] = useState();
-    const [andar, setAndar] = useState();
+   
+     
     
-
+    const name = useRef([]);
+    const quarto = useRef([]);
+    
     
     const [idPaciente, setIdPaciente] = useState(false);
 
@@ -36,28 +43,45 @@ export default function New() {
             .then((snapshot) => {
 
                 let lista = [];
-
+                let andar = [];
                 snapshot.forEach((doc) => {
                     lista.push({
                         id: doc.id,
                         paciente: doc.data().nm_paciente
                     })
+                    andar.push({
+                        id: doc.id,
+                        andar: doc.data().nr_quarto
+                    })
                 })
 
-                if (lista.length === 0) {
-                    console.log("Nenhuma empresa encontrada!");
-                    setPacientes([ { id: '1', paciente: 'FREELA' } ]);
-                    setLoadPacientes(false);
-                    return;
-                }
+               
+
+
+              
 
                 setPacientes(lista);
+                setAndares(andar);
+                name.current =lista;
+                quarto.current = andar;
                 setLoadPacientes(false);
+                setLoadAndares(false);
                 
                 console.log(id, 'id');
                 if (id) {
                     setIdPaciente(true);
+                        
                     loadId(lista);
+                    
+                }
+                else{
+                  var dataAtual = new Date();
+	        const locale = 'pt-br';
+	        var data = dataAtual.toLocaleDateString(locale);
+	        var hora = dataAtual.toLocaleTimeString(locale); 
+            
+            setDatavisita(data);
+            setHora(hora); 
                 }
 
             })
@@ -81,8 +105,21 @@ export default function New() {
             setHora(snapshot.data().dt_visita_hora);
           
             setVisitante(snapshot.data().nm_visitante);
-            setAndar(snapshot.data().cd_andar);
-     
+            
+
+           
+
+            var indexAndar = quarto.current.findIndex(p => p.andar == snapshot.data().cd_andar);
+           
+            setAndarSelected(indexAndar);
+
+
+            
+            console.log(id);
+
+            var index = name.current.findIndex(p => p.paciente == snapshot.data().nm_paciente);
+            
+            setPacienteSelected(index);
             
 
         })
@@ -99,11 +136,11 @@ export default function New() {
             await firebase.firestore().collection('visitas')
             .doc(id)
             .update({
-                cd_andar: andar,
+                cd_andar: andares[andarSelected].andar,
                 dt_visita_hora: hora,
                 dt_visita_data: datavisita,
                 nm_visitante: visitante,
-                nm_paciente: pacienteSelected, 
+                nm_paciente: pacientes[pacienteSelected].paciente,
         
                
                 userId: user.uid
@@ -125,11 +162,11 @@ export default function New() {
         await firebase.firestore().collection('visitas')
         .add({
             created: new Date(),
-            cd_andar: andar,
+            cd_andar: andares[andarSelected].andar,
             dt_visita_hora: hora,
             dt_visita_data: datavisita,
             nm_visitante: visitante,
-            nm_paciente: pacienteSelected, 
+            nm_paciente: pacientes[pacienteSelected].paciente,
          
             userId: user.uid
         }).then(() => {
@@ -158,7 +195,9 @@ export default function New() {
     function handleChangeCustomers(e) {
         setPacienteSelected(e.target.value);
     }
-
+    function handleChangeAndares(e) {
+        setAndarSelected(e.target.value);
+    }
     return(
         <div>
             <Header/>
@@ -203,7 +242,20 @@ export default function New() {
                         <input type="text" placeholder='Nome do visitante' value={visitante} onChange={ (e) => setVisitante(e.target.value) } />
                     
                         <label>Andar/Leito</label>
-                        <input type="text" placeholder='Código do andar' value={andar} onChange={ (e) => setAndar(e.target.value) } />
+                        {loadAndares ? (
+                            <input type='text' disabled={true} value="Carregando andar..." />
+                        ) : (
+
+                            <select value={andarSelected} onChange={handleChangeAndares} >
+                                {andares.map((item, index) => {
+                                    return(
+                                        <option key={item.id} value={index}>
+                                            {item.andar}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                        ) }
 
                         
                         

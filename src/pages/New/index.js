@@ -87,6 +87,7 @@ export default function New() {
             setUnidade(snapshot.data().nm_unidade_funcional);
             setIdade(snapshot.data().nr_idade);
             var index = name.current.findIndex(p => p.id == id);
+			console.log(index);
             setPacienteSelected(index);
         
             
